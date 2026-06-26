@@ -2,6 +2,14 @@
 
 基于 FFmpeg + SDL2 + epoll 的实时直播系统，支持主播推流、观众拉流、弹幕互动。
 
+## 运行环境
+
+| 模块 | 平台 | 说明 |
+|------|------|------|
+| **服务端** | Linux (CentOS/Ubuntu) | 部署在虚拟机，利用 epoll 实现高并发 |
+| **主播端** | Windows | Qt GUI + OpenCV 采集 + FFmpeg 编码推流 |
+| **观众端** | Windows | Qt GUI + FFmpeg 解码 + SDL2 播放 |
+
 ## 技术栈
 
 | 模块 | 技术 |
@@ -9,22 +17,22 @@
 | **音视频处理** | FFmpeg（编解码、格式转换） |
 | **音频播放** | SDL2（跨平台音频设备） |
 | **图像采集** | OpenCV（摄像头、桌面截图） |
-| **网络框架** | epoll + 线程池、自定义 TCP 协议 |
+| **网络框架** | epoll (LT + EPOLLONESHOT) + 线程池、自定义 TCP 协议 |
 | **数据库** | MySQL（用户/房间管理） |
 | **UI 框架** | Qt5（信号槽跨线程通信） |
 
 ## 架构
 
 ```
-主播端 (Qt + OpenCV + FFmpeg)
+主播端 (Windows: Qt + OpenCV + FFmpeg)
     │
     │ RTMP 推流 (H.264 + AAC)
     ▼
-服务端 (epoll + 线程池 + MySQL)
+服务端 (Linux: epoll + 线程池 + MySQL)
     │
     │ 自定义 TCP 协议转发
     ▼
-观众端 (Qt + FFmpeg + SDL2)
+观众端 (Windows: Qt + FFmpeg + SDL2)
 ```
 
 ## 核心功能
@@ -57,14 +65,17 @@
 
 ## 快速开始
 
-### 服务端
+### 服务端（Linux）
 
 ```bash
+# 在 Linux 虚拟机中编译运行
 cd LiveServer/LiveServer
 qmake LiveServer.pro
 make
 ./LiveServer
 ```
+
+> 服务端依赖：`epoll`（Linux 2.6+）、MySQL 5.7+
 
 ### 主播端
 
