@@ -1,0 +1,59 @@
+# Qt build files
+build-*/
+*.pro.user
+*.pro.user.*
+Makefile
+Makefile.*
+object_script.*
+*.o
+*.obj
+*.a
+*.lib
+*.dll
+*.so
+*.exe
+*.pdb
+*.ilk
+*.sdf
+*.suo
+*.opensdf
+*.VC.db
+*.VC.opendb
+
+# Windows
+Thumbs.db
+Desktop.ini
+*.lnk
+
+# Large files (不要提交视频、压缩包)
+*.mp4
+*.avi
+*.mkv
+*.flv
+*.zip
+*.tar.gz
+*.7z
+*.rar
+video/
+NTdisk/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Trae
+.trae/
+
+# Debug
+*.log
+*.dump
+
+# Third-party libraries (不要提交第三方库源码和二进制)
+**/ffmpeg-*/
+**/SDL2-*/
+**/opencv-*/
+**/opencv-release/
+*.def
