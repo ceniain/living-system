@@ -1,5 +1,5 @@
 -- ============================================================
--- 直播系统数据库初始化脚本
+-- 直播系统数据库初始化脚本（幂等，可重复执行）
 -- 用法：mysql -u root -p < init_database.sql
 -- ============================================================
 
@@ -19,8 +19,22 @@ CREATE TABLE IF NOT EXISTS `user` (
     `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '注册时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
 
--- 索引：注册时查重、登录时查询
-ALTER TABLE `user` ADD UNIQUE INDEX `idx_username` (`username`);
+-- 索引：注册时查重、登录时查询（幂等）
+SET @dbname = DATABASE();
+SET @tablename = 'user';
+SET @columnname = 'username';
+SET @indexname = 'idx_username';
+SET @preparedStatement = (SELECT IF(
+  (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS
+   WHERE table_schema = @dbname
+   AND table_name = @tablename
+   AND index_name = @indexname) > 0,
+  'SELECT 1',
+  CONCAT('ALTER TABLE `', @tablename, '` ADD UNIQUE INDEX `', @indexname, '` (`', @columnname, '`)')
+));
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
 
 -- ============================================================
 -- room 表
@@ -35,11 +49,51 @@ CREATE TABLE IF NOT EXISTS `room` (
     `end_time` DATETIME DEFAULT NULL COMMENT '下播时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='房间表';
 
--- 索引：观众进房查询（高频）
-ALTER TABLE `room` ADD UNIQUE INDEX `idx_room_no` (`room_no`);
+-- 索引1：观众进房查询（唯一索引）
+SET @indexname = 'idx_room_no';
+SET @columnname = 'room_no';
+SET @preparedStatement = (SELECT IF(
+  (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS
+   WHERE table_schema = @dbname
+   AND table_name = @tablename
+   AND index_name = @indexname) > 0,
+  'SELECT 1',
+  CONCAT('ALTER TABLE `', @tablename, '` ADD UNIQUE INDEX `', @indexname, '` (`', @columnname, '`)')
+));
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
 
--- 复合索引：进房时同时查询房间号和直播状态
-ALTER TABLE `room` ADD INDEX `idx_room_no_status` (`room_no`, `live_status`);
+-- 索引2：进房时同时查询房间号和直播状态（复合索引）
+SET @indexname = 'idx_room_no_status';
+SET @preparedStatement = (SELECT IF(
+  (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS
+   WHERE table_schema = @dbname
+   AND table_name = @tablename
+   AND index_name = @indexname) > 0,
+  'SELECT 1',
+  'ALTER TABLE `room` ADD INDEX `idx_room_no_status` (`room_no`, `live_status`)'
+));
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
 
--- 索引：主播下播查询
-ALTER TABLE `room` ADD INDEX `idx_anchor_status` (`anchor_uid`, `live_status`);
+-- 索引3：主播下播查询
+SET @indexname = 'idx_anchor_status';
+SET @preparedStatement = (SELECT IF(
+  (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS
+   WHERE table_schema = @dbname
+   AND table_name = @tablename
+   AND index_name = @indexname) > 0,
+  'SELECT 1',
+  'ALTER TABLE `room` ADD INDEX `idx_anchor_status` (`anchor_uid`, `live_status`)'
+));
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
+
+-- 清理脏数据（room_no = 0 的无效记录）
+DELETE FROM `room` WHERE `room_no` = 0;
+
+-- 完成提示
+SELECT '数据库初始化完成！' AS status;
