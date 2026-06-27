@@ -71,6 +71,7 @@
 #define _DEF_PACK_HEART_BEAT            (_DEF_PACK_BASE + 28)
 #define _DEF_PACK_GET_ROOM_LIST_RQ      (_DEF_PACK_BASE + 29)
 #define _DEF_PACK_GET_ROOM_LIST_RS      (_DEF_PACK_BASE + 30)
+#define _DEF_PACK_ROOM_LIST_UPDATE_NOTIFY (_DEF_PACK_BASE + 31) // 房间列表变更通知（新开播/下播）
 
 // 结果定义
 #define CREATE_ROOM_SUCCESS 1
@@ -513,3 +514,12 @@ typedef struct STRU_GET_ROOM_LIST_RS
         // 数组会逐个调用RoomItem构造，无需额外memset
     }
 } STRU_GET_ROOM_LIST_RS;
+
+// 房间列表变更通知（服务端主动推送，通知客户端刷新大厅）
+typedef struct STRU_ROOM_LIST_UPDATE_NOTIFY
+{
+    PackType type;
+    int update_type; // 1=新房间开播, 2=房间下播
+
+    STRU_ROOM_LIST_UPDATE_NOTIFY() : type(_DEF_PACK_ROOM_LIST_UPDATE_NOTIFY), update_type(0) {}
+} STRU_ROOM_LIST_UPDATE_NOTIFY;
