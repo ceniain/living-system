@@ -60,6 +60,7 @@ signals:
     void sigOpenAdminDialog();
     void sigDataSync();//在线用户/全体数据同步
     void sig_RoomListResp(const STRU_GET_ROOM_LIST_RS& rsp);//房间列表响应信号
+    void sigRoomListUpdateNotify(int update_type);//房间列表变更通知（新开播/下播）
 
 
 private slots:
@@ -95,6 +96,7 @@ public slots:
     void slot_open_admin_dialog();
     void slotOnDisconnected();   // TCP断开连接回调
     void dealGetRoomListRs(char* buf, int len);//房间列表协议处理
+    void dealRoomListUpdateNotify(char* buf, int len);//房间列表变更通知处理
     void SendRoomListReq(int page_index, int page_size, int sort_type, const QString& search_key);
     // 大厅按钮触发：打开创建房间弹窗
     void slot_OpenCreateRoomDialog();

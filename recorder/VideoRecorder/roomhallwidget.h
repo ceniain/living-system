@@ -34,6 +34,8 @@ private slots:
     void on_btn_CreateRoom_clicked();
     // 接收Kernel房间列表信号
     void slot_OnRoomListResp(const STRU_GET_ROOM_LIST_RS& rsp);
+    // 接收房间列表变更通知（新开播/下播自动刷新）
+    void slot_OnRoomListUpdateNotify(int update_type);
 
 private:
     // 这里统一改成 Ui::Form，和上方namespace声明对应

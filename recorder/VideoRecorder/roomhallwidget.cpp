@@ -24,6 +24,10 @@ RoomHallWidget::RoomHallWidget(QWidget *parent)
     connect(Kernel::getInstance(), &Kernel::sig_RoomListResp,
             this, &RoomHallWidget::slot_OnRoomListResp, Qt::UniqueConnection);
 
+    // 绑定房间列表变更通知（新开播/下播自动刷新）
+    connect(Kernel::getInstance(), &Kernel::sigRoomListUpdateNotify,
+            this, &RoomHallWidget::slot_OnRoomListUpdateNotify, Qt::UniqueConnection);
+
     // 页面加载自动请求第一页数据
     RefreshRoomList();
 }
@@ -154,4 +158,13 @@ void RoomHallWidget::slot_OnRoomListResp(const STRU_GET_ROOM_LIST_RS &rsp)
 
     ui->btn_Prev->setEnabled(m_curPage > 1);
     ui->btn_Next->setEnabled(m_curPage < m_totalPage);
+}
+
+// 接收房间列表变更通知（新开播/下播自动刷新）
+void RoomHallWidget::slot_OnRoomListUpdateNotify(int update_type)
+{
+    qDebug() << "[RoomHall] 收到大厅刷新通知 update_type=" << update_type
+             << (update_type == 1 ? "(新开播)" : "(下播)");
+    // 自动刷新房间列表
+    RefreshRoomList();
 }

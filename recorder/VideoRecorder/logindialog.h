@@ -22,6 +22,9 @@ public:
     explicit LoginDialog(QWidget *parent = nullptr, TcpClient* pTcp = nullptr);
     ~LoginDialog();
 
+    // 获取登录用户名
+    QString GetUserName() const { return m_lastLoginUser; }
+
     // 登录成功信号：传给主界面，关闭登录弹窗、打开创建直播间界面
 signals:
     void sigLoginSuccess(QString strUserId);
@@ -43,6 +46,7 @@ private slots:
 private:
     Ui::LoginDialog *ui;
     TcpClient* m_pTcpClient = nullptr; // 保存tcp管理对象
+    QString m_lastLoginUser; // 保存最后一次登录的用户名
 };
 
 #endif // LOGINDIALOG_H

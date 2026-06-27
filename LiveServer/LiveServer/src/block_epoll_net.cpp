@@ -418,6 +418,15 @@ void Block_Epoll_Net::BroadcastRoomData(unsigned long long roomNo, char* buf, in
         SendData(fd, buf, len);
     }
 }
+// 广播给所有在线客户端（用于大厅刷新通知）
+void Block_Epoll_Net::BroadcastToAllClients(char* buf, int len)
+{
+    // 遍历所有连接的客户端
+    for (auto& pair : m_fdCtxMap) {
+        int fd = pair.first;
+        SendData(fd, buf, len);
+    }
+}
 // 单个客户端退出房间
 void Block_Epoll_Net::RemoveClientFromRoom(unsigned long long roomNo, sock_fd fd)
 {

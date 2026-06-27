@@ -26,6 +26,8 @@ void LoginDialog::on_btn_login_clicked()
         return;
     }
 
+    // 保存用户名供后续使用
+    m_lastLoginUser = user;
     // 发给 Kernel，不再自己发包
     emit sigLoginRequest(user, pwd);
 }

@@ -120,6 +120,8 @@ void Kernel::initProtocolMap()
     m_dealFunArr[_DEF_PACK_SYS_NOTICE_BROAD-_DEF_PACK_BASE] = &Kernel::dealSysNoticeBroad;
     //房间列表响应
     m_dealFunArr[_DEF_PACK_GET_ROOM_LIST_RS - _DEF_PACK_BASE] = &Kernel::dealGetRoomListRs;
+    // 房间列表变更通知（服务端主动推送）
+    m_dealFunArr[_DEF_PACK_ROOM_LIST_UPDATE_NOTIFY - _DEF_PACK_BASE] = &Kernel::dealRoomListUpdateNotify;
 
 }
 
@@ -652,6 +654,14 @@ void Kernel::dealGetRoomListRs(char *buf, int len)
 
     emit sig_RoomListResp(*rsp);
     qDebug() << "[Kernel] 解析房间列表完成，转发信号至UI";
+}
+
+// 处理房间列表变更通知（服务端主动推送）
+void Kernel::dealRoomListUpdateNotify(char* buf, int len)
+{
+    STRU_ROOM_LIST_UPDATE_NOTIFY* notify = (STRU_ROOM_LIST_UPDATE_NOTIFY*)buf;
+    qDebug() << "[Kernel] 收到大厅刷新通知 update_type=" << notify->update_type;
+    emit sigRoomListUpdateNotify(notify->update_type);
 }
 // 大厅点击创建房间按钮 → 打开创建房间弹窗
 void Kernel::slot_OpenCreateRoomDialog()

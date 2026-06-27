@@ -136,6 +136,12 @@ void CLogic::CreateRoomRq(sock_fd clientfd, char* szbuf, int nlen)
             printf("【创建房间成功】主播fd:%d 房间号:%llu 房间名:%s\n",clientfd,newRoomNo,rq->room_name);
             BroadcastAdminList(newRoomNo);
             BroadcastOnlineUserList(newRoomNo);
+
+            // 通知所有客户端刷新大厅列表
+            STRU_ROOM_LIST_UPDATE_NOTIFY notify;
+            notify.update_type = 1; // 1=新房间开播
+            m_tcp->BroadcastToAllClients((char*)&notify, sizeof(notify));
+            printf("【大厅通知】已推送新房间开播通知\n");
         }
     }
 
@@ -405,6 +411,12 @@ void CLogic::StopLiveRq(sock_fd clientfd, char* szbuf, int nlen)
         pthread_mutex_lock(&g_globalMapMutex);
         g_roomMap.erase(roomNo);
         pthread_mutex_unlock(&g_globalMapMutex);
+
+        // 通知所有客户端刷新大厅列表
+        STRU_ROOM_LIST_UPDATE_NOTIFY notify;
+        notify.update_type = 2; // 2=房间下播
+        m_tcp->BroadcastToAllClients((char*)&notify, sizeof(notify));
+        printf("【大厅通知】已推送房间下播通知\n");
 
 
         // ==============================================

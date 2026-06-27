@@ -225,6 +225,8 @@ public:
     //房间内群发数据
     void BroadcastRoomData(unsigned long long roomNo,char* buf,int len);
     void RemoveClientFromRoom(unsigned long long roomNo, sock_fd fd);
+    // 广播给所有在线客户端（用于大厅刷新通知）
+    void BroadcastToAllClients(char* buf, int len);
 
     // fd -> 客户端信息（含心跳时间）
     std::unordered_map<int, ClientContext> m_fdCtxMap;
