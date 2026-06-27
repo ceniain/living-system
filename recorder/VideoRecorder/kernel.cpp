@@ -299,21 +299,13 @@ void Kernel::dealLoginRs(char* buf, int len)
         QMessageBox::information(m_pLoginDlg, "成功", "登录成功");
         m_pLoginDlg->close();
 
-//        // ========== 修复：在这里创建对话框，避免空指针 ==========
-        if(!m_pRoomCreateDlg)
+        // 登录后直接进入直播大厅
+        if (!m_pRoomHall)
         {
-            m_pRoomCreateDlg = new RoomCreateDialog;
-            // 在这里连接！绝对安全
-            connect(m_pRoomCreateDlg, &RoomCreateDialog::sigCreateRoom,
-                    this, &Kernel::slotCreateRoom);
+            m_pRoomHall = new RoomHallWidget(nullptr);
         }
-        m_pRoomCreateDlg->show();
-//        if (!m_pRoomHall)
-//        {
-//            m_pRoomHall = new RoomHallWidget(nullptr);
-//        }
-//        m_pRoomHall->show();
-//        m_pRoomHall->raise();
+        m_pRoomHall->show();
+        m_pRoomHall->raise();
 
         emit sigLoginSuccess();
 
