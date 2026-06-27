@@ -331,11 +331,13 @@ void TcpKernel::SendData(sock_fd clientfd, char *szbuf, int nlen)
 
 }
 //alive
-void TcpKernel::AddRoomInfo(unsigned long long roomNo, sock_fd fd)
+void TcpKernel::AddRoomInfo(unsigned long long roomNo, sock_fd fd, const char* roomName)
 {
     m_RoomAnchorMap[roomNo] = fd;
     Room stRoom;
     stRoom.room_no = roomNo;
+    // 保存房间名
+    strncpy(stRoom.room_name, roomName, sizeof(stRoom.room_name)-1);
     // 主播fd 对应主播ID，按需赋值
     stRoom.host_userid = m_logic->GetUidByFd(fd);
     stRoom.admin_cnt = 0;
@@ -343,7 +345,7 @@ void TcpKernel::AddRoomInfo(unsigned long long roomNo, sock_fd fd)
     pthread_mutex_lock(&g_globalMapMutex);
     g_roomMap[roomNo] = stRoom;
     pthread_mutex_unlock(&g_globalMapMutex);
-    printf("[AddRoomInfo] 成功写入 g_roomMap，roomNo: %llu\n", roomNo);
+    printf("[AddRoomInfo] 成功写入 g_roomMap，roomNo: %llu roomName: %s\n", roomNo, roomName);
 
 }
 //livealive

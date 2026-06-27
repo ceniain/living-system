@@ -131,7 +131,7 @@ void CLogic::CreateRoomRq(sock_fd clientfd, char* szbuf, int nlen)
             rs.result = 1;
             rs.room_no = htole64(newRoomNo);
 
-            m_pKernel->AddRoomInfo(newRoomNo, clientfd);
+            m_pKernel->AddRoomInfo(newRoomNo, clientfd, rq->room_name);
             m_tcp->AddClientToRoom(newRoomNo, clientfd);
             printf("【创建房间成功】主播fd:%d 房间号:%llu 房间名:%s\n",clientfd,newRoomNo,rq->room_name);
             BroadcastAdminList(newRoomNo);
@@ -998,7 +998,12 @@ void CLogic::GetRoomListRq(sock_fd clientfd, char* szbuf, int nlen)
     {
         unsigned long long roomNo = pair.first;
         Room& room = pair.second;
-        int onlineNum = (int)room.client_fds.size();
+        // 从 m_RoomClientMap 获取真实在线人数（room.client_fds 未同步更新）
+        int onlineNum = 0;
+        auto it = m_pKernel->GetTcpNet()->m_RoomClientMap.find(roomNo);
+        if (it != m_pKernel->GetTcpNet()->m_RoomClientMap.end()) {
+            onlineNum = (int)it->second.size();
+        }
 
         printf("[GetRoomListRq] 遍历房间 roomNo=%llu 房间名=%s 在线人数=%d\n",
                roomNo, room.room_name, onlineNum);

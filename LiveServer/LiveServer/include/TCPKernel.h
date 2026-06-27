@@ -38,7 +38,7 @@ public:
     void SendData( sock_fd clientfd, char*szbuf, int nlen );
 
     //房间管理 房间名-主播fd映射
-    void AddRoomInfo(unsigned long long roomNo, sock_fd fd);
+    void AddRoomInfo(unsigned long long roomNo, sock_fd fd, const char* roomName);
     void DelRoomInfo(unsigned long long roomNo);
     void OnClientDisconnect(sock_fd clientfd);
     //存储：key=room_no value=主播fd
