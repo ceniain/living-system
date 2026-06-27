@@ -95,7 +95,7 @@ public slots:
     void slot_open_admin_dialog();
     void slotOnDisconnected();   // TCP断开连接回调
     void dealGetRoomListRs(char* buf, int len);//房间列表协议处理
-    void SendRoomListReq();
+    void SendRoomListReq(int page_index, int page_size, int sort_type, const QString& search_key);
     // 大厅按钮触发：打开创建房间弹窗
     void slot_OpenCreateRoomDialog();
 

@@ -294,6 +294,8 @@ void Kernel::dealLoginRs(char* buf, int len)
 
     if (rsp->result == login_success) {
         m_loginUserId = rsp->userid;
+        // 保存登录用户名（从登录对话框获取）
+        m_loginName = m_pLoginDlg->GetUserName();
         QMessageBox::information(m_pLoginDlg, "成功", "登录成功");
         m_pLoginDlg->close();
 
@@ -617,21 +619,21 @@ void Kernel::slotOnDisconnected()
     }
 }
 //发送获取房间列表请求
-void Kernel::SendRoomListReq()
+void Kernel::SendRoomListReq(int page_index, int page_size, int sort_type, const QString& search_key)
 {
     qDebug()<<__func__;
     // 结构体自带构造函数，自动初始化协议号、清零成员
     STRU_GET_ROOM_LIST_RQ req;
-    // 默认参数（可由UI层传参，这里Kernel仅做转发）
-    req.page_index  = 1;
-    req.page_size   = 10;
-    req.sort_type   = 0;
-    memset(req.search_key, 0, sizeof(req.search_key));
+    // 使用UI层传入的参数
+    req.page_index  = page_index;
+    req.page_size   = page_size;
+    req.sort_type   = sort_type;
+    strncpy(req.search_key, search_key.toUtf8().data(), sizeof(req.search_key)-1);
 
     if(m_pTcpClient)
     {
         m_pTcpClient->sendMsg(reinterpret_cast<char*>(&req), sizeof(req));
-        qDebug() << "[Kernel] 已发送 获取房间列表 请求包";
+        qDebug() << "[Kernel] 已发送 获取房间列表 请求包 page=" << page_index << "sort=" << sort_type << "key=" << search_key;
     }
 }
 

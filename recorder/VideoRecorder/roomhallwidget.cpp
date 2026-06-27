@@ -45,9 +45,8 @@ void RoomHallWidget::RefreshRoomList()
 void RoomHallWidget::SendGetRoomListReq()
 {
     qDebug()<<__func__;
-    // 如需携带 页码、排序、关键词，可扩展 Kernel 接口
-    // 这里统一交给 Kernel 发起网络请求
-    Kernel::getInstance()->SendRoomListReq();
+    // 传递UI状态到Kernel
+    Kernel::getInstance()->SendRoomListReq(m_curPage, 10, m_sortType, m_searchKey);
 }
 
 // ===================== UI 交互槽函数 =====================
