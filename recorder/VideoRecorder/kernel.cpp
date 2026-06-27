@@ -646,15 +646,15 @@ void Kernel::dealGetRoomListRs(char *buf, int len)
     }
     STRU_GET_ROOM_LIST_RS* rsp = (STRU_GET_ROOM_LIST_RS*)buf;
 
-    // 硬编码测试数据 【新增 cur_page / total_page】
-    rsp->cur_page  = 1;
-    rsp->total_page = 1;
-    rsp->item_cnt  = 1;
+    // 使用服务端返回的真实数据
+    qDebug() << "[Kernel] 收到房间列表: cur_page=" << rsp->cur_page
+             << "total_page=" << rsp->total_page << "item_cnt=" << rsp->item_cnt;
 
-    rsp->items[0].room_no = 1389936360;
-    strcpy(rsp->items[0].room_name, "测试房间_硬编码");
-    rsp->items[0].host_userid = 5;
-    rsp->items[0].online_count = 1;
+    for (int i = 0; i < rsp->item_cnt; ++i) {
+        qDebug() << "  房间" << i << ": room_no=" << rsp->items[i].room_no
+                 << "name=" << rsp->items[i].room_name
+                 << "online=" << rsp->items[i].online_count;
+    }
 
     emit sig_RoomListResp(*rsp);
     qDebug() << "[Kernel] 解析房间列表完成，转发信号至UI";
