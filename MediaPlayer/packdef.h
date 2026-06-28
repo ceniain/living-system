@@ -66,6 +66,9 @@ using namespace std;
 #define _DEF_PACK_LEAVE_ROOM_RQ        (_DEF_PACK_BASE + 26)//退房请求
 #define _DEF_PACK_LEAVE_ROOM_RS        (_DEF_PACK_BASE + 27)//退房回复
 #define _DEF_PACK_HEART_BEAT            (_DEF_PACK_BASE + 28)
+#define _DEF_PACK_GET_ROOM_LIST_RQ      (_DEF_PACK_BASE + 29)
+#define _DEF_PACK_GET_ROOM_LIST_RS      (_DEF_PACK_BASE + 30)
+#define _DEF_PACK_ROOM_LIST_UPDATE_NOTIFY (_DEF_PACK_BASE + 31)
 
 // 返回结果
 #define user_is_exist		    0
@@ -391,3 +394,57 @@ typedef struct STRU_HEART_BEAT
     }
     int type;
 }STRU_HEART_BEAT;
+
+// 单条房间信息项（对应Room核心字段，用于列表展示）
+typedef struct RoomItem
+{
+    unsigned long long room_no;
+    char room_name[64];
+    int host_userid;
+    int online_count;    // 在线人数 = client_fds.size()
+    int live_status;     // 直播状态 0=下播 1=开播
+
+    RoomItem() : room_no(0), host_userid(0), online_count(0), live_status(0)
+    {
+        memset(room_name, 0, sizeof(room_name));
+    }
+} RoomItem;
+
+// 获取房间列表 请求包
+typedef struct STRU_GET_ROOM_LIST_RQ
+{
+    PackType type;
+    int page_index;
+    int page_size;
+    int sort_type;
+    char search_key[32];
+
+    STRU_GET_ROOM_LIST_RQ() : type(_DEF_PACK_GET_ROOM_LIST_RQ), page_index(0), page_size(0), sort_type(0)
+    {
+        memset(search_key, 0, sizeof(search_key));
+    }
+} STRU_GET_ROOM_LIST_RQ;
+
+// 获取房间列表 响应包
+typedef struct STRU_GET_ROOM_LIST_RS
+{
+    PackType type;
+    int total_page;
+    int cur_page;
+    int item_cnt;
+    RoomItem items[20];
+
+    STRU_GET_ROOM_LIST_RS() : type(_DEF_PACK_GET_ROOM_LIST_RS), total_page(0), cur_page(0), item_cnt(0)
+    {
+        // 数组会逐个调用RoomItem构造，无需额外memset
+    }
+} STRU_GET_ROOM_LIST_RS;
+
+// 房间列表变更通知（服务端主动推送，通知客户端刷新大厅）
+typedef struct STRU_ROOM_LIST_UPDATE_NOTIFY
+{
+    PackType type;
+    int update_type; // 1=新房间开播, 2=房间下播
+
+    STRU_ROOM_LIST_UPDATE_NOTIFY() : type(_DEF_PACK_ROOM_LIST_UPDATE_NOTIFY), update_type(0) {}
+} STRU_ROOM_LIST_UPDATE_NOTIFY;

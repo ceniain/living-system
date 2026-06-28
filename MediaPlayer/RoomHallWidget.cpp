@@ -1,8 +1,9 @@
 #include "RoomHallWidget.h"
 #include "ui_RoomHallWidget.h"
-#include "kernel.h"
+#include "Kernel.h"
 #include <cstring>
 #include <QString>
+#include <QHeaderView>
 
 RoomHallWidget::RoomHallWidget(QWidget *parent)
     : QWidget(parent), ui(new Ui::RoomHallWidget)
@@ -19,6 +20,17 @@ RoomHallWidget::RoomHallWidget(QWidget *parent)
     ui->cbox_Sort->addItem("默认排序", 0);
     ui->cbox_Sort->addItem("在线人数升序", 1);
     ui->cbox_Sort->addItem("在线人数降序", 2);
+
+    // 3. 设置表格列宽
+    ui->table_RoomList->setColumnWidth(0, 120); // 房间号
+    ui->table_RoomList->setColumnWidth(1, 150); // 房间名
+    ui->table_RoomList->setColumnWidth(2, 80);  // 主播ID
+    ui->table_RoomList->setColumnWidth(3, 80);  // 在线人数
+
+    // 4. 设置表格不可编辑
+    ui->table_RoomList->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    // 设置选择行为为整行选择
+    ui->table_RoomList->setSelectionBehavior(QAbstractItemView::SelectRows);
 
     // ========= 核心：绑定 Kernel 的房间列表信号 =========
     bool conn1 = connect(Kernel::getInstance(), &Kernel::sig_RoomListResp,
@@ -94,23 +106,15 @@ void RoomHallWidget::on_btn_Next_clicked()
     }
 }
 
-// 点击列表行 -> 进房间
-void RoomHallWidget::on_table_RoomList_cellClicked(int row, int col)
+// 双击列表行 -> 进房间
+void RoomHallWidget::on_table_RoomList_cellDoubleClicked(int row, int col)
 {
-    qDebug()<<__func__;
+    qDebug()<<__func__ << "row:" << row << "col:" << col;
     QString roomNoStr = ui->table_RoomList->item(row, 0)->text();
     unsigned long long roomNo = roomNoStr.toULongLong();
 
-    // 在这里调用 Kernel 发送【加入房间】请求 + 页面跳转
-    // 示例：Kernel::getInstance()->sendJoinRoomReq(roomNo);
-}
-
-// 创建房间按钮
-void RoomHallWidget::on_btn_CreateRoom_clicked()
-{
-    qDebug()<<__func__;
-    // 调用 Kernel 原有创建房间逻辑
-    Kernel::getInstance()->slot_OpenCreateRoomDialog();
+    // 发送进入房间信号
+    emit sigJoinRoom(roomNo);
 }
 
 // ===================== 接收Kernel信号，刷新UI表格 =====================

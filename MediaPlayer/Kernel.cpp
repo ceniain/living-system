@@ -110,6 +110,10 @@ void Kernel::initProtocolMap()
     // 系统公告协议绑定
     m_dealFunArr[_DEF_PACK_SYS_NOTICE_BROAD-_DEF_PACK_BASE] = &Kernel::dealSysNoticeBroad;
     m_dealFunArr[_DEF_PACK_LEAVE_ROOM_RS - _DEF_PACK_BASE] = &Kernel::dealLeaveRoomRs;
+    // 房间列表响应
+    m_dealFunArr[_DEF_PACK_GET_ROOM_LIST_RS - _DEF_PACK_BASE] = &Kernel::dealRoomListRs;
+    // 房间列表变更通知
+    m_dealFunArr[_DEF_PACK_ROOM_LIST_UPDATE_NOTIFY - _DEF_PACK_BASE] = &Kernel::dealRoomListUpdateNotify;
 
 }
 
@@ -753,4 +757,58 @@ void Kernel::slotOnDisconnected()
     {
         m_pLoginDlg->show();
     }
+}
+
+// ===================== 发送获取房间列表请求 =====================
+void Kernel::SendRoomListReq(int pageIndex, int pageSize, int sortType, const QString& searchKey)
+{
+    qDebug() << __func__;
+    qDebug() << "【Kernel】请求房间列表 page:" << pageIndex << "size:" << pageSize
+             << "sort:" << sortType << "key:" << searchKey;
+
+    STRU_GET_ROOM_LIST_RQ req;
+    req.page_index = pageIndex;
+    req.page_size = pageSize;
+    req.sort_type = sortType;
+    strncpy(req.search_key, searchKey.toUtf8().data(), sizeof(req.search_key)-1);
+
+    m_pTcpClient->sendMsg((char*)&req, sizeof(req));
+}
+
+// ===================== 房间列表响应解析 =====================
+void Kernel::dealRoomListRs(char* buf, int len)
+{
+    qDebug() << __func__;
+    qDebug() << "【Kernel】收到房间列表响应，长度:" << len;
+
+    if (len < (int)sizeof(STRU_GET_ROOM_LIST_RS)) {
+        qDebug() << "!!! 包长度不足！";
+        return;
+    }
+
+    STRU_GET_ROOM_LIST_RS* rsp = (STRU_GET_ROOM_LIST_RS*)buf;
+    qDebug() << "【Kernel】cur_page:" << rsp->cur_page << "total_page:" << rsp->total_page
+             << "item_cnt:" << rsp->item_cnt;
+
+    // 发射信号给UI
+    emit sig_RoomListResp(*rsp);
+}
+
+// ===================== 房间列表变更通知解析 =====================
+void Kernel::dealRoomListUpdateNotify(char* buf, int len)
+{
+    qDebug() << __func__;
+    qDebug() << "【Kernel】收到房间列表变更通知，长度:" << len;
+
+    if (len < (int)sizeof(STRU_ROOM_LIST_UPDATE_NOTIFY)) {
+        qDebug() << "!!! 包长度不足！";
+        return;
+    }
+
+    STRU_ROOM_LIST_UPDATE_NOTIFY* notify = (STRU_ROOM_LIST_UPDATE_NOTIFY*)buf;
+    qDebug() << "【Kernel】update_type:" << notify->update_type
+             << (notify->update_type == 1 ? "(新开播)" : "(下播)");
+
+    // 发射信号通知UI刷新
+    emit sigRoomListUpdateNotify(notify->update_type);
 }

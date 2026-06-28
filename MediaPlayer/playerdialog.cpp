@@ -113,6 +113,13 @@ PlayerDialog::PlayerDialog(QWidget *parent)
 
 PlayerDialog::~PlayerDialog()
 {
+    // 清理直播大厅窗口
+    if (m_roomHallWidget)
+    {
+        m_roomHallWidget->close();
+        m_roomHallWidget->deleteLater();
+        m_roomHallWidget = nullptr;
+    }
     delete ui;
     delete m_player;
 }
@@ -596,6 +603,11 @@ void PlayerDialog::onHostStopLive()
     qDebug() << "PlayerDialog::onHostStopLive 主播已下播 → 恢复黑屏待机状态";
 
     // ========================
+    // 0. 关闭直播大厅窗口
+    // ========================
+    closeRoomHall();
+
+    // ========================
     // 1. 安全停止视频（非阻塞，绝不卡死）
     // ========================
     if (m_player->playerState() != PlayerState::Stop)
@@ -768,5 +780,44 @@ void PlayerDialog::on_pb_quit_room_clicked()
     // 4. 提示
     QMessageBox::information(this, "提示", "已退出当前直播间");
 
+}
+
+// 打开直播大厅
+void PlayerDialog::on_btn_RoomHall_clicked()
+{
+    qDebug() << __func__;
+
+    // 单例模式，只创建一次（独立窗口，父窗口设为nullptr）
+    if (m_roomHallWidget == nullptr)
+    {
+        m_roomHallWidget = new RoomHallWidget(nullptr);
+        m_roomHallWidget->setWindowTitle("直播大厅");
+        // 连接进入房间信号
+        connect(m_roomHallWidget, &RoomHallWidget::sigJoinRoom,
+                this, [this](unsigned long long roomNo) {
+            qDebug() << "【PlayerDialog】从大厅进入房间:" << roomNo;
+            // 关闭大厅窗口
+            closeRoomHall();
+            // 发送进房请求
+            emit sigJoinRoom(roomNo);
+        });
+    }
+
+    // 显示大厅窗口（独立弹出）
+    m_roomHallWidget->show();
+    m_roomHallWidget->raise();
+    m_roomHallWidget->activateWindow();
+}
+
+// 关闭直播大厅
+void PlayerDialog::closeRoomHall()
+{
+    if (m_roomHallWidget)
+    {
+        qDebug() << "【PlayerDialog】关闭直播大厅窗口";
+        m_roomHallWidget->close();
+        m_roomHallWidget->deleteLater();
+        m_roomHallWidget = nullptr;
+    }
 }
 

@@ -67,6 +67,8 @@ public:
     bool isInRoom() const { return m_bInRoom; }
     // 发送退房请求包
     void sendLeaveRoomReq();
+    // 发送获取房间列表请求
+    void SendRoomListReq(int pageIndex, int pageSize, int sortType, const QString& searchKey);
 
 public slots:
     // 统一接收数据
@@ -96,6 +98,10 @@ public slots:
     void onHeartBeatTimeout(); // 定时器超时槽函数
     // TCP连接断开回调
     void slotOnDisconnected();
+    // 房间列表响应解析
+    void dealRoomListRs(char* buf, int len);
+    // 房间列表变更通知解析
+    void dealRoomListUpdateNotify(char* buf, int len);
 
 signals:
     void sigLoginSuccess();
@@ -106,6 +112,10 @@ signals:
     // 统一刷新信号：列表、身份、禁言状态全部刷新
     void sigDataSync();
     void sigAdminStatusChanged(bool isAdmin); //本人房管状态变化
+
+    // 房间列表相关信号
+    void sig_RoomListResp(const STRU_GET_ROOM_LIST_RS& rsp);
+    void sigRoomListUpdateNotify(int update_type);
 
 private:
     // ===================== 协议处理 =====================

@@ -622,7 +622,10 @@ void Kernel::SendRoomListReq(int page_index, int page_size, int sort_type, const
     req.page_index  = page_index;
     req.page_size   = page_size;
     req.sort_type   = sort_type;
-    strncpy(req.search_key, search_key.toUtf8().data(), sizeof(req.search_key)-1);
+    // 安全复制搜索关键词，确保以 \0 结尾
+    QByteArray keyBytes = search_key.toUtf8();
+    strncpy(req.search_key, keyBytes.data(), sizeof(req.search_key) - 1);
+    req.search_key[sizeof(req.search_key) - 1] = '\0';  // 显式确保终止符
 
     if(m_pTcpClient)
     {

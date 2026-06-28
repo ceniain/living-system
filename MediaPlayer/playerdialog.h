@@ -9,6 +9,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsTextItem>
 #include <QList>
+#include "RoomHallWidget.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class PlayerDialog; }
@@ -76,6 +77,8 @@ private slots:
 
 public slots:
     void onHostStopLive(); // 主播下播
+    void on_btn_RoomHall_clicked(); // 打开直播大厅
+    void closeRoomHall(); // 关闭直播大厅
 
 
 
@@ -90,6 +93,7 @@ private:
     QString m_playUrl;
     QGraphicsScene* m_scene = nullptr;
     QList<QGraphicsTextItem*> m_danmuItems;
+    RoomHallWidget* m_roomHallWidget = nullptr;
 
 
 

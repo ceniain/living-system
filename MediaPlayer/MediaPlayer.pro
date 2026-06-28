@@ -11,6 +11,7 @@ CONFIG += c++11
 SOURCES += \
     Kernel.cpp \
     PacetQueue.cpp \
+    RoomHallWidget.cpp \
     TcpClient.cpp \
     adminmanagedialog.cpp \
     logindialog.cpp \
@@ -21,6 +22,7 @@ SOURCES += \
 HEADERS += \
     Kernel.h \
     PacketQueue.h \
+    RoomHallWidget.h \
     TcpClient.h \
     adminmanagedialog.h \
     logindialog.h \
@@ -29,6 +31,7 @@ HEADERS += \
     videoplayer.h
 
 FORMS += \
+    RoomHallWidget.ui \
     adminmanagedialog.ui \
     logindialog.ui \
     playerdialog.ui

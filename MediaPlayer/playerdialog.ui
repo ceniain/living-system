@@ -248,6 +248,19 @@ QScrollBar::handle:vertical{background:#888;border-radius:3px;}</string>
     </item>
    </layout>
   </widget>
+  <widget class="QPushButton" name="btn_RoomHall">
+   <property name="geometry">
+    <rect>
+     <x>890</x>
+     <y>620</y>
+     <width>295</width>
+     <height>35</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>直播大厅</string>
+   </property>
+  </widget>
  </widget>
  <customwidgets>
   <customwidget>

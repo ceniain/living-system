@@ -34,11 +34,12 @@ void TcpClient::sendMsg(char* buf, int len)
 void TcpClient::slotReadData()
 {
     qDebug()<<__func__;
-    memset(m_recvBuf, 0, sizeof(m_recvBuf));
-    m_recvLen = 0;
+    // 修复：不能每次清空缓冲区！TCP 是流式协议，可能分包到达
+    // 只有第一次接收时才需要清空（构造函数已清空）
     int n = m_sock.read(m_recvBuf + m_recvLen, sizeof(m_recvBuf)-m_recvLen);
     if(n <=0) return;
     m_recvLen += n;
+    qDebug()<<"【TCP】本次接收"<<n<<"字节，缓冲区总长度"<<m_recvLen;
 
     while (m_recvLen >= 4)
     {
@@ -51,11 +52,16 @@ void TcpClient::slotReadData()
         //1、从buf头部取bodyLen
         int bodyLen = *(int*)m_recvBuf;
         int pkgTotal = 4 + bodyLen;
+        qDebug()<<"【TCP】解析包 bodyLen="<<bodyLen<<"pkgTotal="<<pkgTotal;
 
         //2、缓冲区数据不够一整包 → 等待下次recv
-        if(m_recvLen < pkgTotal) break;
+        if(m_recvLen < pkgTotal) {
+            qDebug()<<"【TCP】数据不足，等待下次接收";
+            break;
+        }
 
         //3、够整包：跳过包头4，把pkgTotal长度的body发给Kernel
+        qDebug()<<"【TCP】发送完整包给Kernel，长度"<<bodyLen;
         emit sigRecvData(m_recvBuf+4, bodyLen);
 
         //4、剩下的数据前移到缓冲区开头，**必须memmove，剩余后面清零**
