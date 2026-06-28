@@ -100,6 +100,8 @@ public slots:
     void SendRoomListReq(int page_index, int page_size, int sort_type, const QString& search_key);
     // 大厅按钮触发：打开创建房间弹窗
     void slot_OpenCreateRoomDialog();
+    // 关闭直播大厅窗口
+    void closeRoomHall();
 
 
 public:

@@ -269,6 +269,9 @@ void Kernel::dealCreateRoomRs(char *buf, int len)
 
         m_pRoomCreateDlg->close();
 
+        // ✅ 关闭直播大厅窗口
+        closeRoomHall();
+
         // ✅【修复】只创建一次窗口，永远只有一个实例！
         static RecorderDialog *w = nullptr;
         if (!w) {
@@ -373,6 +376,15 @@ void Kernel::dealStopLiveRs(char *buf, int len)
 
             // 清空房间号
             m_currentRoomNo = 0;
+            
+            // ✅ 下播后回到直播大厅
+            if (!m_pRoomHall)
+            {
+                m_pRoomHall = new RoomHallWidget(nullptr);
+            }
+            m_pRoomHall->show();
+            m_pRoomHall->raise();
+            m_pRoomHall->activateWindow();
         });
 
         // 立刻发射信号给观众（不等待）
@@ -603,6 +615,10 @@ void Kernel::slotOnDisconnected()
         m_heartBeatTimer->stop();
         qDebug() << "【主播】心跳定时器已停止";
     }
+    
+    // ✅ 关闭直播大厅窗口
+    closeRoomHall();
+    
     // 可选：清空房间、登录状态，弹窗提示
     m_currentRoomNo = 0;
     m_loginUserId = 0;
@@ -683,4 +699,16 @@ void Kernel::slot_OpenCreateRoomDialog()
     m_pRoomCreateDlg->show();
     m_pRoomCreateDlg->raise();
     m_pRoomCreateDlg->activateWindow();
+}
+
+// 关闭直播大厅窗口
+void Kernel::closeRoomHall()
+{
+    if (m_pRoomHall)
+    {
+        qDebug() << "【Kernel】关闭直播大厅窗口";
+        m_pRoomHall->close();
+        m_pRoomHall->deleteLater();
+        m_pRoomHall = nullptr;
+    }
 }
