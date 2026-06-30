@@ -30,7 +30,8 @@ public:
     // 显示弹幕 + 评论列表（统一接口）
 void addCommentAndDanmu(const QString& msg);
 void setPlayUrl(const QString &rtmpUrl);
-void sendGift(const QString &giftMsg);
+    void playRtmpStream(const QString &rtmpUrl);
+    void sendGift(const QString &giftMsg);
 signals:
     // 点击查询，发送房间号到Kernel
     void sigJoinRoom(unsigned long long roomNo);

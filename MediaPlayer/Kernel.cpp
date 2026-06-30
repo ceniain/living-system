@@ -277,8 +277,8 @@ void Kernel::dealJoinRoomRs(char* buf, int len)
         bool bIsAdmin = m_adminList.contains(m_loginUserId);
         emit sigAdminStatusChanged(bIsAdmin);
 
-        //m_pPlayerDlg->setUrl(url);
-        //QMessageBox::information(m_pPlayerDlg, "进房成功", "已获取直播地址！");
+        m_pPlayerDlg->setPlayUrl(url);
+        m_pPlayerDlg->playRtmpStream(url);
     } else {
         m_bInRoom = false;
         m_currentRoomNo = 0;

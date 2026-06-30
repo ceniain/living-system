@@ -400,6 +400,26 @@ void PlayerDialog::setPlayUrl(const QString& rtmpUrl)
     m_playUrl = rtmpUrl;
 }
 
+void PlayerDialog::playRtmpStream(const QString& rtmpUrl)
+{
+    qDebug() << __func__ << "rtmpUrl:" << rtmpUrl;
+
+    if (m_player->playerState() != PlayerState::Stop)
+    {
+        m_player->stop(true);
+    }
+
+    QImage blackImg(ui->wdg_show->size(), QImage::Format_RGB32);
+    blackImg.fill(Qt::black);
+    ui->wdg_show->slot_setImage(blackImg);
+
+    QThread::msleep(50);
+
+    m_player->setFileName(rtmpUrl);
+    m_player->start();
+    slot_PlayerStateChanged(PlayerState::Playing);
+}
+
 void PlayerDialog::on_pb_query_clicked()
 {
     qDebug() << __func__;

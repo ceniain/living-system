@@ -88,7 +88,6 @@ void PicInPic_Read::slot_getVideoFrame()
     int buffer_size = ImageToYuvBuffer( image , &picture_buf );
     Q_EMIT SIG_sendVideoFrameData( picture_buf, buffer_size );
     Q_EMIT SIG_sendVideoFrame( image );
-    image.save("D:/test_desktop.png");  // 加这行
 }
 int PicInPic_Read::ImageToYuvBuffer( QImage& image , uint8_t ** buffer )
 {

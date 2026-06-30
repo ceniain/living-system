@@ -51,9 +51,9 @@ NTdisk/
 *.log
 *.dump
 
-# Third-party libraries (不要提交第三方库源码和二进制)
-**/ffmpeg-*/
-**/SDL2-*/
-**/opencv-*/
-**/opencv-release/
+# Third-party libraries (已提交到仓库)
+# **/ffmpeg-*/
+# **/SDL2-*/
+# **/opencv-*/
+# **/opencv-release/
 *.def
